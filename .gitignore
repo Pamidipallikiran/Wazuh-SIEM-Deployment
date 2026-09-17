@@ -1,0 +1,41 @@
+# Secrets and credentials
+.env
+*.key
+*.pem
+*.p12
+*.pfx
+*.crt
+*.csr
+passwords.txt
+credentials.txt
+secrets.txt
+
+# Runtime logs and generated data
+*.log
+eve.json
+fast.log
+stats.log
+suricata.log
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Temporary files
+*.tmp
+*.swp
+*.bak
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Wazuh runtime data
+wazuh-data/
+ossec.log

@@ -1,0 +1,11 @@
+<!--
+  Sanitized Wazuh Agent configuration for Suricata EVE JSON.
+  This is documentation only; it is not a complete ossec.conf.
+-->
+
+<ossec_config>
+  <localfile>
+    <log_format>json</log_format>
+    <location>/var/log/suricata/eve.json</location>
+  </localfile>
+</ossec_config>

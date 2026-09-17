@@ -1,0 +1,6 @@
+# LAB ICMP Echo Request Detection
+#
+# Detects ICMP Echo Request packets destined for HOME_NET.
+# SID 1000001 is locally assigned for this lab.
+
+alert icmp any any -> $HOME_NET any (msg:"LAB ICMP Echo Request Detected"; itype:8; sid:1000001; rev:1;)
