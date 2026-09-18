@@ -284,90 +284,78 @@ Each detection test can be documented with:
 
 ```text
 siem-deployment/
-│
 ├── README.md
 ├── .gitignore
 │
-├── deployment/
-│   ├── install-wazuh.sh
-│   ├── install-suricata.sh
-│   └── configure-siem.sh
-│
 ├── detection/
-│   ├── network-attacks.md
-│   ├── custom-rules.md
-│   └── alert-examples.md
+│   └── icmp-detection.md
 │
 ├── docs/
 │   ├── architecture/
-│   │   └── siem-architecture.png
-│   │
+│   │   └── architecture.md
 │   ├── installation/
-│   │   └── installation-guide.md
-│   │
-│   └── screenshots/
+│   │   └── deployment.md
+│   └── verification/
+│       └── deployment-verification.md
 │
 ├── suricata/
-│   ├── suricata.yaml
-│   ├── rules/
-│   │   └── local.rules
-│   │
-│   └── eve-json/
-│       └── README.md
+│   ├── config/
+│   │   └── suricata.yaml.example
+│   └── rules/
+│       ├── README.md
+│       └── local.rules
 │
-├── wazuh/
-│   ├── manager/
-│   │   ├── ossec.conf
-│   │   └── rules/
-│   │       └── local_rules.xml
-│   │
-│   ├── agent/
-│   │   └── agent-config.md
-│   │
-│   └── dashboard/
+├── troubleshooting/
+│   └── README.md
 │
-└── troubleshooting/
-    └── common-issues.md
+└── wazuh/
+    ├── agent/
+    │   ├── README.md
+    │   └── suricata-eve-integration.xml
+    │
+    └── manager/
+        └── rules/
+            └── local_rules.xml
 ```
 
----
+The repository contains sanitized configuration examples, custom detection rules, deployment documentation, verification evidence, and troubleshooting guidance. Runtime logs, generated EVE JSON data, credentials, certificates, and other sensitive files are excluded from version control.
 
 ## 📚 Documentation
 
-The repository contains documentation covering:
+The repository documentation is organized by deployment, detection, verification, and troubleshooting purpose.
 
-### Installation
+### Architecture
 
-Step-by-step installation and configuration of:
+- `docs/architecture/architecture.md` — Lab topology, component roles, and event flow.
 
-* Wazuh Manager
-* Wazuh Agent
-* Wazuh Dashboard
-* Suricata IDS
+### Installation and Deployment
 
-### Configuration
+- `docs/installation/deployment.md` — Wazuh Manager, Wazuh Agent, Wazuh Dashboard, and Suricata deployment details.
 
-Configuration examples for:
+### Verification
 
-* Wazuh Manager
-* Wazuh Agents
-* Suricata
-* Custom detection rules
-* Log collection
+- `docs/verification/deployment-verification.md` — Verified service status, connectivity, configuration validation, detection testing, and observed results.
 
-### Detection Engineering
+### Detection
 
-Documentation of:
+- `detection/icmp-detection.md` — Controlled ICMP detection test and end-to-end event flow.
+- `suricata/rules/README.md` — Suricata custom rule documentation and validation.
+- `wazuh/manager/rules/local_rules.xml` — Sanitized Wazuh custom detection and aggregation rules.
 
-* Custom Wazuh rules
-* Custom Suricata rules
-* Detection testing
-* Alert investigation
-* MITRE ATT&CK mapping
+### Wazuh Agent Integration
+
+- `wazuh/agent/README.md` — Wazuh Agent and Suricata integration overview.
+- `wazuh/agent/suricata-eve-integration.xml` — Sanitized EVE JSON collection configuration example.
+
+### Suricata Configuration
+
+- `suricata/config/suricata.yaml.example` — Sanitized configuration excerpt documenting the relevant Suricata integration settings.
 
 ### Troubleshooting
 
-Common deployment and integration problems are documented along with their solutions.
+- `troubleshooting/README.md` — Common Wazuh, Suricata, connectivity, log collection, and alert troubleshooting procedures.
+
+The repository intentionally excludes runtime logs, generated EVE JSON data, credentials, certificates, and other sensitive deployment artifacts.
 
 ---
 

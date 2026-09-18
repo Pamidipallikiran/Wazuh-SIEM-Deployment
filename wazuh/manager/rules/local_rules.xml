@@ -1,0 +1,20 @@
+<!-- Wazuh custom rules for the verified Suricata integration -->
+
+<group name="local,suricata,icmp,">
+
+  <!-- Match custom Suricata SID 1000001 -->
+  <rule id="910009" level="5">
+    <if_sid>86601</if_sid>
+    <field name="alert.signature_id">^1000001$</field>
+    <description>Suricata: LAB ICMP Echo Request Detected</description>
+    <group>suricata,icmp,</group>
+  </rule>
+
+  <!-- Aggregate two matching alerts within 30 seconds -->
+  <rule id="910010" level="12" frequency="2" timeframe="30">
+    <if_matched_sid>910009</if_matched_sid>
+    <description>Aggregated: ICMP Echo Request Flood (&gt;=2 in 30s)</description>
+    <group>suricata,icmp,flood,aggregated,</group>
+  </rule>
+
+</group>

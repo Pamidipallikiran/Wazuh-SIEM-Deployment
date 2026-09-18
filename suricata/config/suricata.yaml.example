@@ -1,0 +1,14 @@
+# Relevant Suricata configuration used by the Wazuh integration lab.
+# This file documents the settings relevant to this project.
+#
+# It is NOT a replacement for the complete /etc/suricata/suricata.yaml.
+
+af-packet:
+  - interface: enp0s3
+    cluster-id: 99
+
+outputs:
+  - eve-log:
+      enabled: yes
+      filetype: regular
+      filename: eve.json

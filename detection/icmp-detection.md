@@ -35,6 +35,10 @@ Suricata generated an EVE JSON alert containing:
     signature_id: 1000001
     signature: LAB ICMP Echo Request Detected
 
+The original controlled test was generated from the Wazuh Manager (192.168.1.7).
+
+Additional live verification events were later observed from source 192.168.1.14.
+
 ## Wazuh Result
 
 The Wazuh Manager processed the Suricata alert using Wazuh rule 86601.
