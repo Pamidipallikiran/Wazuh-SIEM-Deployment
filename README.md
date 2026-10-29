@@ -6,6 +6,10 @@ A practical **Security Information and Event Management (SIEM)** deployment proj
 
 ## 📌 Project Overview
 
+
+<img width="2970" height="1260" alt="Wazuh_Suricata_Detection_Flow" src="https://github.com/user-attachments/assets/3a9fac71-1d82-4f8b-a0d1-1aa5ea805963" />
+
+
 This project demonstrates the deployment and integration of a security monitoring environment using Wazuh and Suricata.
 
 The environment is designed to simulate a real-world SOC monitoring workflow where security events from endpoints and network traffic are collected, analyzed, correlated, and presented to security analysts through the Wazuh Dashboard.
