@@ -7,6 +7,13 @@ af-packet:
   - interface: enp0s3
     cluster-id: 99
 
+# Managed rules plus the lab's separate local rule file (see suricata/rules/local.rules).
+default-rule-path: /var/lib/suricata/rules
+
+rule-files:
+  - suricata.rules
+  - /etc/suricata/rules/local.rules
+
 outputs:
   - eve-log:
       enabled: yes
