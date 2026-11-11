@@ -14,6 +14,8 @@ This project demonstrates the deployment and integration of a security monitorin
 
 The environment is designed to simulate a real-world SOC monitoring workflow where security events from endpoints and network traffic are collected, analyzed, correlated, and presented to security analysts through the Wazuh Dashboard.
 
+[![Validate detection content](https://github.com/Pamidipallikiran/Wazuh-SIEM-Deployment/actions/workflows/validate.yml/badge.svg)](https://github.com/Pamidipallikiran/Wazuh-SIEM-Deployment/actions/workflows/validate.yml)
+
 ### Primary Objectives
 
 * Deploy a functional Wazuh SIEM environment.
@@ -73,6 +75,8 @@ This project uses a distributed SIEM architecture in which the Wazuh Manager and
                                v
                        SOC ANALYST
                     Investigation & Response
+```
+
 ---
 
 ## 🔄 Security Event Flow
@@ -220,7 +224,17 @@ The EVE JSON format allows security events to be consumed and analyzed by other 
 
 ## 🚨 Detection Capabilities
 
-The lab can be used to demonstrate detection of different types of security activity.
+The platform can demonstrate detection of the activity types listed below. The table shows which are implemented as custom, version-controlled rules in this repository and how far each has been validated.
+
+| Detection | Suricata SID | Wazuh rule | MITRE ATT&CK | Status |
+|---|---|---|---|---|
+| ICMP Echo Request | 1000001 | 910009 | n/a | Verified in lab |
+| ICMP Echo aggregation (2 in 30 s) | n/a | 910010 | n/a | Verified in lab |
+| TCP SYN scan | 1000002 | 910011 | T1046 | Written, awaiting lab verification |
+| SSH connection burst | 1000003 | 910012 | T1110 | Written, awaiting lab verification |
+| ICMP flood | 1000004 | 910013 | T1498 | Written, awaiting lab verification |
+
+Full details, tuning notes and the promotion checklist are in [`detection/README.md`](detection/README.md). Endpoint detections (authentication, file integrity, privilege activity) rely on Wazuh's built-in rule set rather than custom rules in this repository.
 
 ### Network-Based Detection
 
@@ -289,18 +303,33 @@ Each detection test can be documented with:
 ```text
 siem-deployment/
 ├── README.md
+├── CHANGELOG.md
 ├── .gitignore
 │
+├── .github/
+│   └── workflows/
+│       └── validate.yml
+│
 ├── detection/
+│   ├── README.md
 │   └── icmp-detection.md
 │
 ├── docs/
 │   ├── architecture/
 │   │   └── architecture.md
+│   ├── hardening/
+│   │   └── hardening.md
 │   ├── installation/
 │   │   └── deployment.md
+│   ├── soc/
+│   │   └── investigation-playbooks.md
 │   └── verification/
 │       └── deployment-verification.md
+│
+├── scripts/
+│   ├── validate_rules.py
+│   ├── check-pipeline.sh
+│   └── generate-test-events.sh
 │
 ├── suricata/
 │   ├── config/
@@ -319,7 +348,10 @@ siem-deployment/
     │
     └── manager/
         └── rules/
-            └── local_rules.xml
+            ├── local_rules.xml
+            └── tests/
+                ├── README.md
+                └── sample-eve-events.jsonl
 ```
 
 The repository contains sanitized configuration examples, custom detection rules, deployment documentation, verification evidence, and troubleshooting guidance. Runtime logs, generated EVE JSON data, credentials, certificates, and other sensitive files are excluded from version control.
@@ -342,7 +374,9 @@ The repository documentation is organized by deployment, detection, verification
 
 ### Detection
 
+- `detection/README.md` — Detection catalog: SIDs, Wazuh rules, ATT&CK mapping, status, and tuning notes.
 - `detection/icmp-detection.md` — Controlled ICMP detection test and end-to-end event flow.
+- `wazuh/manager/rules/tests/README.md` — Sample events and `wazuh-logtest` instructions.
 - `suricata/rules/README.md` — Suricata custom rule documentation and validation.
 - `wazuh/manager/rules/local_rules.xml` — Sanitized Wazuh custom detection and aggregation rules.
 
@@ -359,7 +393,34 @@ The repository documentation is organized by deployment, detection, verification
 
 - `troubleshooting/README.md` — Common Wazuh, Suricata, connectivity, log collection, and alert troubleshooting procedures.
 
+### SOC Operations and Hardening
+
+- `docs/soc/investigation-playbooks.md` — Triage playbooks for each custom detection and an incident record template.
+- `docs/hardening/hardening.md` — Hardening checklist for moving beyond the lab configuration.
+
 The repository intentionally excludes runtime logs, generated EVE JSON data, credentials, certificates, and other sensitive deployment artifacts.
+
+---
+
+## ✅ Validation and Testing
+
+Check the detection content locally (Python 3 only, no Suricata or Wazuh needed):
+
+```bash
+python3 scripts/validate_rules.py
+```
+
+It checks rule syntax, unique SIDs and rule IDs, valid XML, that every Wazuh rule points at a defined Suricata SID, and that the sample events are valid. The same check runs in GitHub Actions on every push and pull request, together with a Suricata `-T` rule load test.
+
+On the lab hosts:
+
+```bash
+sudo ./scripts/check-pipeline.sh --role agent     # Suricata + Wazuh Agent endpoint
+sudo ./scripts/check-pipeline.sh --role manager   # Wazuh Manager + Dashboard
+
+# From a second lab host, generate controlled test traffic (private targets only):
+./scripts/generate-test-events.sh --target <agent-ip> --test all --i-have-authorization
+```
 
 ---
 
