@@ -1,0 +1,42 @@
+name: Validate detection content
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  static-checks:
+    name: Rules, XML and scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate Suricata and Wazuh rules (cross-references, samples)
+        run: python3 scripts/validate_rules.py
+
+      - name: XML well-formedness
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq libxml2-utils
+          xmllint --noout wazuh/agent/suricata-eve-integration.xml
+          # Wazuh rule files have several top-level groups, so wrap before linting.
+          { echo "<root>"; cat wazuh/manager/rules/local_rules.xml; echo "</root>"; } | xmllint --noout -
+
+      - name: Shell script syntax
+        run: for f in scripts/*.sh; do bash -n "$f"; done
+
+  suricata-config-test:
+    name: Suricata rule load test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Load local.rules with Suricata (-T)
+        run: |
+          docker run --rm \
+            -v "$PWD/suricata/rules:/lab-rules:ro" \
+            jasonish/suricata:latest \
+            -T -c /etc/suricata/suricata.yaml -S /lab-rules/local.rules

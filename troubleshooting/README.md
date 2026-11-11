@@ -129,3 +129,55 @@ When troubleshooting the pipeline, verify each layer in order:
     7. Wazuh Dashboard
 
 This layered approach helps identify which component is responsible for an event-collection failure.
+
+`scripts/check-pipeline.sh --role agent` and `--role manager` automate these checks.
+
+## 10. Wazuh Custom Rule Does Not Fire
+
+Symptom: the Suricata alert reaches the manager but only the generic rule `86601` appears,
+not the custom rule (for example `910009`).
+
+On the manager, test the event directly. Paste a line from
+`wazuh/manager/rules/tests/sample-eve-events.jsonl`, or a real line from `eve.json`:
+
+    sudo /var/ossec/bin/wazuh-logtest
+
+Then check:
+
+1. The `alert.signature_id` in the event matches the rule's `<field>` regex (for example `^1000001$`).
+2. The rule file is installed at `/var/ossec/etc/rules/local_rules.xml`.
+3. The rule files load cleanly, then restart:
+
+       sudo /var/ossec/bin/wazuh-analysisd -t
+       sudo systemctl restart wazuh-manager
+
+Rules chained with `<if_sid>86601</if_sid>` only run for events that the built-in Suricata
+rule already matched, so confirm the event is an `event_type: alert` record.
+
+## 11. Suricata Sees No Traffic or No Alerts in a VM
+
+If packets from other hosts never produce alerts:
+
+- Confirm the capture interface name in `suricata.yaml` matches the real interface (`ip -br link`).
+- In VirtualBox, traffic addressed to other machines is only visible if the adapter's
+  Promiscuous Mode is set to *Allow All*. Traffic addressed to the endpoint itself is seen without it.
+- Virtual NICs often hand Suricata packets with unfinished checksums, which Suricata may then
+  treat as invalid. Disable offload on the monitored interface and retest:
+
+      sudo ethtool -K enp0s3 rx off tx off
+
+- Check that Suricata is actually receiving packets (the counter should increase between runs):
+
+      sudo grep -a "capture.kernel_packets" /var/log/suricata/stats.log | tail -2
+
+## 12. Threshold-Based Detections Fire Late or Not at All
+
+The scan, SSH, and flood rules (SIDs 1000002 to 1000004) use `threshold: type both`, which
+raises one alert after the count is reached inside the time window. The first packets in a
+burst therefore do **not** produce an alert on their own.
+
+- Confirm enough traffic was sent from a **single source** inside the window
+  (20 in 10 s, 5 in 60 s, and 20 in 5 s respectively). A slow or split test will never reach the count.
+- `scripts/generate-test-events.sh` sends enough packets to cross each threshold.
+- If a legitimate scanner or monitor triggers the rules, suppress that source in Suricata's
+  `threshold.config` rather than raising the Wazuh rule level.

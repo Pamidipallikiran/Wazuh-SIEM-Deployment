@@ -4,3 +4,23 @@
 # SID 1000001 is locally assigned for this lab.
 
 alert icmp any any -> $HOME_NET any (msg:"LAB ICMP Echo Request Detected"; itype:8; sid:1000001; rev:1;)
+
+# ---------------------------------------------------------------------------
+# Additional lab detections (SIDs 1000002-1000004)
+#
+# STATUS: syntax-reviewed only. These have NOT yet been run against live traffic
+# in the lab. Validate with `suricata -T`, then generate test traffic with
+# scripts/generate-test-events.sh and record the result in
+# docs/verification/deployment-verification.md before treating them as verified.
+#
+# Thresholds are deliberately low for a small lab. Tune them for real networks.
+# ---------------------------------------------------------------------------
+
+# TCP SYN scan / reconnaissance: 20+ SYNs from one source within 10 seconds.
+alert tcp any any -> $HOME_NET any (msg:"LAB TCP SYN Scan Detected"; flow:stateless; flags:S,12; threshold:type both, track by_src, count 20, seconds 10; classtype:attempted-recon; sid:1000002; rev:1;)
+
+# SSH brute force indicator: 5+ new connections to TCP/22 from one source within 60 seconds.
+alert tcp any any -> $HOME_NET 22 (msg:"LAB SSH Connection Burst (possible brute force)"; flow:stateless; flags:S,12; threshold:type both, track by_src, count 5, seconds 60; classtype:attempted-admin; sid:1000003; rev:1;)
+
+# ICMP flood: 20+ Echo Requests from one source within 5 seconds.
+alert icmp any any -> $HOME_NET any (msg:"LAB ICMP Echo Request Flood"; itype:8; threshold:type both, track by_src, count 20, seconds 5; classtype:attempted-dos; sid:1000004; rev:1;)

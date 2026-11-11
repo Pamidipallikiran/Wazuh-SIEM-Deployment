@@ -18,3 +18,47 @@
   </rule>
 
 </group>
+
+<!--
+  Additional lab detections (Suricata SIDs 1000002-1000004).
+
+  STATUS: not yet verified against live traffic. Validate with
+  /var/ossec/bin/wazuh-analysisd -t and wazuh-logtest (sample events are in
+  wazuh/manager/rules/tests/) before relying on them.
+-->
+<group name="local,suricata,">
+
+  <!-- SID 1000002: TCP SYN scan -->
+  <rule id="910011" level="8">
+    <if_sid>86601</if_sid>
+    <field name="alert.signature_id">^1000002$</field>
+    <description>Suricata: LAB TCP SYN Scan Detected</description>
+    <mitre>
+      <id>T1046</id>
+    </mitre>
+    <group>suricata,recon,portscan,</group>
+  </rule>
+
+  <!-- SID 1000003: burst of connections to SSH -->
+  <rule id="910012" level="10">
+    <if_sid>86601</if_sid>
+    <field name="alert.signature_id">^1000003$</field>
+    <description>Suricata: LAB SSH Connection Burst (possible brute force)</description>
+    <mitre>
+      <id>T1110</id>
+    </mitre>
+    <group>suricata,authentication_failures,ssh,</group>
+  </rule>
+
+  <!-- SID 1000004: ICMP flood detected by Suricata threshold -->
+  <rule id="910013" level="10">
+    <if_sid>86601</if_sid>
+    <field name="alert.signature_id">^1000004$</field>
+    <description>Suricata: LAB ICMP Echo Request Flood</description>
+    <mitre>
+      <id>T1498</id>
+    </mitre>
+    <group>suricata,icmp,flood,dos,</group>
+  </rule>
+
+</group>
